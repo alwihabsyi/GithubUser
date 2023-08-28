@@ -28,7 +28,7 @@ android {
             )
         }
         debug {
-            buildConfigField("String", "API_TOKEN", "\"Your API Token Here\"")
+            buildConfigField("String", "API_TOKEN", "\"your API Token here\"")
             buildConfigField("String", "BASE_URL", "\"https://api.github.com/\"")
         }
     }
