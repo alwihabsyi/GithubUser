@@ -29,11 +29,14 @@
                 android:hint="@string/searchbar_hint" />
 
             <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_settings"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center_vertical"
+                android:scaleType="fitCenter"
+                android:padding="10dp"
                 android:background="@drawable/round_corner"
-                android:src="@drawable/baseline_settings_24" />
+                android:src="@drawable/baseline_restart_alt_24" />
 
         </LinearLayout>
 
@@ -64,6 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/github_user"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -6,16 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alwihbsyi.githubuser.adapter.RvUserAdapter
-import com.alwihbsyi.githubuser.adapter.RvUserSearchAdapter
-import com.alwihbsyi.githubuser.data.response.ItemsItem
-import com.alwihbsyi.githubuser.data.response.ResponseItem
+import com.alwihbsyi.githubuser.data.response.UserResponse
 import com.alwihbsyi.githubuser.databinding.FragmentHomeBinding
 import com.alwihbsyi.githubuser.util.hide
 import com.alwihbsyi.githubuser.util.show
 import com.alwihbsyi.githubuser.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -35,14 +35,23 @@ class HomeFragment : Fragment() {
 
         setupUserRv()
         observer()
+        setupSearchBar()
+
+        binding.btnSettings.setOnClickListener {
+            viewModel.viewModelScope.launch {
+                viewModel.getAllUser()
+            }
+        }
+    }
+
+    private fun setupSearchBar() {
 
         binding.apply {
             searchView.setupWithSearchBar(searchBar)
             searchView.editText.setOnEditorActionListener { text, actionId, event ->
                 searchView.hide()
-//                Toast.makeText(requireContext(), searchView.text, Toast.LENGTH_SHORT).show()
-                viewModel.searchUsername(searchView.text.toString())
-                true
+                viewModel.searchUser(searchView.text.toString())
+                false
             }
         }
     }
@@ -53,36 +62,45 @@ class HomeFragment : Fragment() {
                 binding.progressBar.show()
             } else {
                 binding.progressBar.hide()
-                binding.tvGithubUser.hide()
             }
         }
 
         viewModel.user.observe(viewLifecycleOwner){
+            if(it.isEmpty()){
+                binding.tvGithubUser.show()
+                return@observe
+            }
+
             setupRvData(it)
         }
 
         viewModel.searchUser.observe(viewLifecycleOwner){
-            updateRvData(it)
+            if(it.isEmpty()){
+                binding.tvGithubUser.show()
+                binding.tvGithubUser.text = "No account with that username"
+                return@observe
+            }
+
+            setupRvData(it)
         }
     }
 
-    private fun setupRvData(responseItems: List<ResponseItem>) {
+    private fun setupRvData(responseItems: List<UserResponse>) {
+        binding.tvGithubUser.hide()
         val adapter = RvUserAdapter()
-        adapter.submitList(responseItems)
+        adapter.differ.submitList(responseItems)
         binding.rvUser.adapter = adapter
-    }
-
-    private fun updateRvData(responseItems: List<ItemsItem>) {
-        val adapter = RvUserSearchAdapter()
-        adapter.submitList(responseItems)
-        binding.rvUser.adapter = adapter
+        adapter.onClick = {
+            val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment()
+            action.userResponse = it
+            findNavController().navigate(action)
+        }
     }
 
     private fun setupUserRv() {
         binding.rvUser.apply {
             val rvLayoutManager = LinearLayoutManager(requireContext())
             layoutManager = rvLayoutManager
-            addItemDecoration(DividerItemDecoration(context, rvLayoutManager.orientation))
         }
     }
 

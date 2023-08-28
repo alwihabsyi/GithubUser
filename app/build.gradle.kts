@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -24,6 +26,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            buildConfigField("String", "API_TOKEN", "\"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\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.github.com/\"")
         }
     }
 
