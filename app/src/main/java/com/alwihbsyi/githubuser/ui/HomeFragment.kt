@@ -5,22 +5,28 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alwihbsyi.githubuser.adapter.RvUserAdapter
-import com.alwihbsyi.githubuser.data.response.UserResponse
+import com.alwihbsyi.githubuser.data.remote.response.UserResponse
 import com.alwihbsyi.githubuser.databinding.FragmentHomeBinding
 import com.alwihbsyi.githubuser.util.hide
 import com.alwihbsyi.githubuser.util.show
 import com.alwihbsyi.githubuser.viewmodel.MainViewModel
+import com.alwihbsyi.githubuser.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel by viewModels<MainViewModel> {
+        ViewModelFactory.getInstance(
+            requireActivity()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +39,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.getThemeSetting().observe(viewLifecycleOwner) {
+            if (it) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+
         setupUserRv()
         observer()
         setupSearchBar()
@@ -41,6 +55,12 @@ class HomeFragment : Fragment() {
             viewModel.viewModelScope.launch {
                 viewModel.getAllUser()
             }
+        }
+        binding.btnFavorite.setOnClickListener {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFavoriteFragment())
+        }
+        binding.btnDarkMode.setOnClickListener {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToSettingsFragment())
         }
     }
 
@@ -57,7 +77,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun observer() {
-        viewModel.isLoading.observe(viewLifecycleOwner){ isLoading ->
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading) {
                 binding.progressBar.show()
             } else {
@@ -65,8 +85,8 @@ class HomeFragment : Fragment() {
             }
         }
 
-        viewModel.user.observe(viewLifecycleOwner){
-            if(it.isEmpty()){
+        viewModel.user.observe(viewLifecycleOwner) {
+            if (it.isEmpty()) {
                 binding.tvGithubUser.show()
                 return@observe
             }
@@ -74,8 +94,8 @@ class HomeFragment : Fragment() {
             setupRvData(it)
         }
 
-        viewModel.searchUser.observe(viewLifecycleOwner){
-            if(it.isEmpty()){
+        viewModel.searchUser.observe(viewLifecycleOwner) {
+            if (it.isEmpty()) {
                 binding.tvGithubUser.show()
                 binding.tvGithubUser.text = "No account with that username"
                 return@observe
@@ -91,8 +111,7 @@ class HomeFragment : Fragment() {
         adapter.differ.submitList(responseItems)
         binding.rvUser.adapter = adapter
         adapter.onClick = {
-            val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment()
-            action.userResponse = it
+            val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(it.login)
             findNavController().navigate(action)
         }
     }

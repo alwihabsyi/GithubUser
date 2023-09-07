@@ -1,4 +1,4 @@
-package com.alwihbsyi.githubuser.data.retrofit
+package com.alwihbsyi.githubuser.data.remote.retrofit
 
 import com.alwihbsyi.githubuser.BuildConfig
 import okhttp3.OkHttpClient

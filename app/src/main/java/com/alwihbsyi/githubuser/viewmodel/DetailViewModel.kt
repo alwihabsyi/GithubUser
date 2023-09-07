@@ -5,15 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alwihbsyi.githubuser.data.response.UserResponse
-import com.alwihbsyi.githubuser.data.retrofit.ApiConfig
+import com.alwihbsyi.githubuser.data.UserFavRepository
+import com.alwihbsyi.githubuser.data.local.entity.UserFavEntity
+import com.alwihbsyi.githubuser.data.remote.response.UserResponse
+import com.alwihbsyi.githubuser.data.remote.retrofit.ApiConfig
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class DetailViewModel: ViewModel() {
+class DetailViewModel(private val userRepository: UserFavRepository): ViewModel() {
 
     private val _user = MutableLiveData<UserResponse>()
     val user: LiveData<UserResponse> = _user
@@ -48,9 +50,11 @@ class DetailViewModel: ViewModel() {
         })
     }
 
-    fun getUserFollower(username: String) {
+    fun addToFavorite(user: UserFavEntity) = userRepository.insertFavorite(user)
 
-    }
+    fun deleteFromFavorite(user: UserFavEntity) = userRepository.deleteFavorite(user)
+
+    fun getUserInfo(username: String) = userRepository.getUserInfo(username)
 
     override fun onCleared() {
         super.onCleared()

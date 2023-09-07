@@ -1,10 +1,13 @@
 package com.alwihbsyi.githubuser.ui
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -12,11 +15,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.alwihbsyi.githubuser.R
 import com.alwihbsyi.githubuser.adapter.ViewPagerAdapter
-import com.alwihbsyi.githubuser.data.response.UserResponse
+import com.alwihbsyi.githubuser.data.Result
+import com.alwihbsyi.githubuser.data.local.entity.UserFavEntity
+import com.alwihbsyi.githubuser.data.remote.response.UserResponse
 import com.alwihbsyi.githubuser.databinding.FragmentDetailBinding
 import com.alwihbsyi.githubuser.util.hide
 import com.alwihbsyi.githubuser.util.show
 import com.alwihbsyi.githubuser.viewmodel.DetailViewModel
+import com.alwihbsyi.githubuser.viewmodel.ViewModelFactory
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
@@ -24,7 +30,9 @@ import kotlinx.coroutines.launch
 open class DetailFragment: Fragment() {
 
     private lateinit var binding: FragmentDetailBinding
-    val viewModel by viewModels<DetailViewModel>()
+    val viewModel by viewModels<DetailViewModel> { ViewModelFactory.getInstance(requireActivity()) }
+
+    private var isFavorite = false
 
     companion object {
         @StringRes
@@ -55,8 +63,8 @@ open class DetailFragment: Fragment() {
         }
     }
 
-    private fun setupDetailPage(user: UserResponse?) {
-        viewModel.viewModelScope.launch { viewModel. getUserDetail(user?.login.toString())}
+    private fun setupDetailPage(user: String?) {
+        viewModel.viewModelScope.launch { viewModel. getUserDetail(user!!)}
         observer()
     }
 
@@ -71,16 +79,73 @@ open class DetailFragment: Fragment() {
             }
         }
 
-        viewModel.user.observe(viewLifecycleOwner) {
-            Glide.with(requireContext()).load(it.avatarUrl).into(binding.ivDetailProfile)
-            binding.tvName.text = it.name
-            binding.tvUsername.text = it.login
-            binding.tvFollower.text = "${it.followers} Followers"
-            binding.tvFollowing.text = "${it.following} Following"
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            Glide.with(requireContext()).load(user.avatarUrl).into(binding.ivDetailProfile)
+            binding.tvName.text = user.name
+            binding.tvUsername.text = user.login
+            binding.tvFollower.text = "${user.followers} Followers"
+            binding.tvFollowing.text = "${user.following} Following"
+
+            setFavorite(user)
         }
     }
 
-    private fun setupViewPager(user: UserResponse?) {
+    private fun setFavorite(user: UserResponse) {
+        val userEntity = UserFavEntity(user.name, user.login!!, user.avatarUrl)
+        viewModel.getUserInfo(user.login).observe(viewLifecycleOwner) {
+            isFavorite = it.isNotEmpty()
+
+            binding.btnAddFav.imageTintList = if (it.isEmpty()) {
+                ColorStateList.valueOf(Color.rgb(255, 255, 255))
+            } else {
+                ColorStateList.valueOf(Color.rgb(247, 106, 123))
+            }
+        }
+
+        binding.btnAddFav.setOnClickListener {
+            if (isFavorite){
+                viewModel.deleteFromFavorite(userEntity).observe(viewLifecycleOwner) {
+                    when (it) {
+                        is Result.Loading -> {
+                            binding.btnAddFav.hide()
+                            binding.progressBarFav.show()
+                        }
+                        is Result.Success -> {
+                            binding.progressBarFav.show()
+                            binding.btnAddFav.show()
+                            Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
+                        }
+                        is Result.Error -> {
+                            binding.progressBarFav.show()
+                            binding.btnAddFav.show()
+                            Toast.makeText(requireContext(), "Terjadi Kesalahan", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }else {
+                viewModel.addToFavorite(userEntity).observe(viewLifecycleOwner) {
+                    when (it) {
+                        is Result.Loading -> {
+                            binding.btnAddFav.hide()
+                            binding.progressBarFav.show()
+                        }
+                        is Result.Success -> {
+                            binding.progressBarFav.show()
+                            binding.btnAddFav.show()
+                            Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
+                        }
+                        is Result.Error -> {
+                            binding.progressBarFav.show()
+                            binding.btnAddFav.show()
+                            Toast.makeText(requireContext(), "Terjadi Kesalahan", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupViewPager(user: String?) {
         val viewPagerAdapter = ViewPagerAdapter(this)
         viewPagerAdapter.model = user
         binding.viewPager.adapter = viewPagerAdapter

@@ -7,8 +7,7 @@
     android:layout_marginBottom="5dp"
     android:layout_marginStart="10dp"
     android:layout_marginEnd="10dp"
-    app:cardCornerRadius="15dp"
-    app:cardBackgroundColor="#E4E4E4">
+    app:cardCornerRadius="15dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

@@ -5,26 +5,26 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.alwihbsyi.githubuser.data.remote.response.UserResponse
+import com.alwihbsyi.githubuser.data.local.entity.UserFavEntity
 import com.alwihbsyi.githubuser.databinding.ItemUserLayoutBinding
 import com.bumptech.glide.Glide
 
-class RvUserAdapter : RecyclerView.Adapter<RvUserAdapter.RvUserViewHolder>() {
+class RvFavoriteAdapter : RecyclerView.Adapter<RvFavoriteAdapter.RvUserViewHolder>() {
 
     inner class RvUserViewHolder(val binding: ItemUserLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: UserResponse) {
+        fun bind(data: UserFavEntity) {
             binding.tvUsername.text = data.login
-            Glide.with(itemView.context).load(data.avatarUrl).into(binding.ivUserProfile)
+            Glide.with(itemView.context).load(data.avatar_url).into(binding.ivUserProfile)
         }
     }
 
-    private val diffUtil = object : DiffUtil.ItemCallback<UserResponse>() {
-        override fun areItemsTheSame(oldItem: UserResponse, newItem: UserResponse): Boolean {
+    private val diffUtil = object : DiffUtil.ItemCallback<UserFavEntity>() {
+        override fun areItemsTheSame(oldItem: UserFavEntity, newItem: UserFavEntity): Boolean {
             return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: UserResponse, newItem: UserResponse): Boolean {
+        override fun areContentsTheSame(oldItem: UserFavEntity, newItem: UserFavEntity): Boolean {
             return oldItem == newItem
         }
 
@@ -48,6 +48,6 @@ class RvUserAdapter : RecyclerView.Adapter<RvUserAdapter.RvUserViewHolder>() {
         }
     }
 
-    var onClick: ((UserResponse) -> Unit)? = null
+    var onClick: ((UserFavEntity) -> Unit)? = null
 
 }

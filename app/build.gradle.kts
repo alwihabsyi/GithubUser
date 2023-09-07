@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs")
+    id("kotlin-kapt")
 }
 
 android {
@@ -28,7 +29,7 @@ android {
             )
         }
         debug {
-            buildConfigField("String", "API_TOKEN", "\"your API Token here\"")
+            buildConfigField("String", "API_TOKEN", "\"Your API Key Here\"")
             buildConfigField("String", "BASE_URL", "\"https://api.github.com/\"")
         }
     }
@@ -80,4 +81,12 @@ dependencies {
 
     //CircleImageView
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    //RoomDatabase
+    implementation("androidx.room:room-runtime:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
+
+    //preference
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }

@@ -4,16 +4,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.alwihbsyi.githubuser.data.response.SearchResponse
-import com.alwihbsyi.githubuser.data.response.UserResponse
-import com.alwihbsyi.githubuser.data.retrofit.ApiConfig
+import com.alwihbsyi.githubuser.data.remote.response.SearchResponse
+import com.alwihbsyi.githubuser.data.remote.response.UserResponse
+import com.alwihbsyi.githubuser.data.remote.retrofit.ApiConfig
+import com.alwihbsyi.githubuser.util.SettingPreferences
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainViewModel: ViewModel() {
+class MainViewModel(private val pref: SettingPreferences): ViewModel() {
 
     private val _user = MutableLiveData<ArrayList<UserResponse>>()
     val user: LiveData<ArrayList<UserResponse>> = _user
@@ -67,6 +69,18 @@ class MainViewModel: ViewModel() {
             }
 
         })
+    }
+
+
+
+    fun getThemeSetting(): LiveData<Boolean> {
+        return pref.getThemeSetting().asLiveData()
+    }
+
+    fun saveThemeSetting(isDarkModeActive: Boolean) {
+        viewModelScope.launch {
+            pref.saveThemeSetting(isDarkModeActive)
+        }
     }
 
 }

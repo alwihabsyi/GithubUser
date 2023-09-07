@@ -1,4 +1,4 @@
-package com.alwihbsyi.githubuser.data.response
+package com.alwihbsyi.githubuser.data.remote.response
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName

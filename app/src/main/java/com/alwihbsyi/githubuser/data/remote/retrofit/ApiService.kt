@@ -1,9 +1,9 @@
-package com.alwihbsyi.githubuser.data.retrofit
+package com.alwihbsyi.githubuser.data.remote.retrofit
 
 import com.alwihbsyi.githubuser.BuildConfig
 import com.alwihbsyi.githubuser.BuildConfig.*
-import com.alwihbsyi.githubuser.data.response.SearchResponse
-import com.alwihbsyi.githubuser.data.response.UserResponse
+import com.alwihbsyi.githubuser.data.remote.response.SearchResponse
+import com.alwihbsyi.githubuser.data.remote.response.UserResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Headers
